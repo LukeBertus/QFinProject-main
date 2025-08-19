@@ -3,6 +3,7 @@ import sys
 import os
 
 
+
 original_sys_path = sys.path.copy()
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,24 +46,26 @@ products = [uec]
 
 
 player_bot = PlayerAlgorithm(products)
-num_timestamps = 20000
+player_bot.set_idx(1)
+num_timestamps = 5
 your_pnl = run_game(player_bot, num_timestamps, products)
 
 print(your_pnl)
 
 
 # Custome code to save trade prices
-new_data = player_bot.values
-column_name = "Price"
-
 csv_path = "trade_prices.csv"
+new_data = player_bot.values
+column_name = "Price_n"
 
-if os.path.exists(csv_path):
+if os.path.exists(csv_path) and os.path.getsize(csv_path) > 10:
     df = pd.read_csv(csv_path)
-    # Add new column
-    df[column_name] = pd.Series(new_data)
+    max_len = max(len(df), len(new_data))
+    # Reindex the whole DataFrame to the new max length
+    df = df.reindex(range(max_len))
+    # Add the new column, padding if necessary
+    df[column_name] = pd.Series(new_data).reindex(range(max_len), fill_value=pd.NA)
 else:
     df = pd.DataFrame({column_name: new_data})
 
 df.to_csv(csv_path, index=False)
-

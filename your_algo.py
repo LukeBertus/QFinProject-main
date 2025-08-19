@@ -1,6 +1,6 @@
 from base import Exchange, Trade, Order, Product, Msg, Rest
 from typing import List, Dict
-
+import pprint
 
 values = {}
 
@@ -28,6 +28,15 @@ class PlayerAlgorithm:
 
         # Initialize any other global variables you may need here
         # Examples: position tracking, risk management parameters, strategy state variables
+
+    def print_book(self, book):
+        for ticker, sides in book.items():
+            print(f"Product: {ticker}")
+            for side, resting_orders in sides.items():
+                print(f"  {side}:")
+                for rest in resting_orders:
+                    print(vars(rest))  # Shows all attributes of the Rest object
+            print("-" * 30)
 
     def send_messages(self, book: Dict[str, Dict[str, List[Rest]]]) -> List[Msg]:
         """
@@ -69,7 +78,7 @@ class PlayerAlgorithm:
         """
 
         messages = []
-        
+        self.print_book(book)
         # Example trading logic: Place a buy order on the first cycle
         # This is just a demonstration - replace with your actual strategy
         if self.timestamp_num == 0:
@@ -155,6 +164,7 @@ class PlayerAlgorithm:
             - Bot names are anonymized except for your own
             - Order IDs are hidden except for your own
         """
+        
         for trade in trades:
             self.values.append(trade.price)
             # Check if this bot participated in the trade (either as aggressor or resting order)
